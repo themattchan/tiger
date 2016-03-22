@@ -18,3 +18,10 @@ _build/
 # oasis generated files
 setup.data
 setup.log
+
+
+# sml compilation manager gunk
+.cm/
+
+# generated lex files
+*.lex.sml
