@@ -7,8 +7,16 @@ fun err(p1,p2) = ErrorMsg.error p1
 
 fun eof() = let val pos = hd(!linePos) in Tokens.EOF(pos,pos) end
 
+fun parseInt (ns, p, k) =
+  case Int.fromString (ns) of
+     SOME n => (Tokens.INT (n, p, p+(String.size ns)))
+   | NONE   => (ErrorMsg.error p ("failed to parse integer " ^ ns)
+               ;k())
+
 
 %%
+%s COMMENT;                     (* extra states *)
+
 %%
 var       => (Tokens.VAR       (yypos, yypos+3));
 while     => (Tokens.WHILE     (yypos, yypos+5));
@@ -53,8 +61,15 @@ nil       => (Tokens.NIL       (yypos, yypos+3));
 "|"       => (Tokens.OR        (yypos, yypos+1));
 ":="      => (Tokens.ASSIGN    (yypos, yypos+2));
 
+[0-9]+                    => (parseInt (yytext, yypos, continue));
+[a-zA-Z][_a-zA-Z0-9]*     => (Tokens.ID (yytext, yypos, yypos+size yytext));
+["][^"]*["]               => (Tokens.STRING (yytext, yypos, yypos+size yytext));
 
-\n    => (lineNum := !lineNum+1; linePos := yypos :: !linePos; continue());
-","   => (Tokens.COMMA(yypos,yypos+1));
-"123" => (Tokens.INT(123,yypos,yypos+3));
+
+<INITIAL>"/*" =>    (YYBEGIN COMMENT; continue());
+<COMMENT>"*/" =>    (YYBEGIN INITIAL; continue());
+
+[\ \t]*       => (continue());        (* skip whitespace *)
+\n            => (lineNum := !lineNum+1; linePos := yypos :: !linePos; continue());
+
 .     => (ErrorMsg.error yypos ("illegal character " ^ yytext); continue());
