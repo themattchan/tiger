@@ -21,7 +21,11 @@ val prog =
    PrintStm[IdExp "b"]))
 
 fun maxargs (CompoundStm (s1,s2)) = max (maxargs s1, maxargs s2)
-  | maxargs (AssignStm (_,e))     = maxargs_exp e
+  | maxargs (AssignStm (_,e))     = maxargs_exp e            in case g of
+                   SOME v => (v,t)
+                 | NONE   => raise UnboundValueError
+            end
+
   | maxargs (PrintStm es)         = max (length es, List.foldl max 0 (map maxargs_exp es))
 and maxargs_exp (OpExp (e1,_,e2)) = max (maxargs_exp e1, maxargs_exp e2)
   | maxargs_exp (EseqExp (s,e))   = max (maxargs s, maxargs_exp e)
@@ -31,6 +35,7 @@ and max (x,y)                     = if x < y then y else x
 
 type table = (id * int) list
 exception UnboundValueError
+
 fun lookup (nil,_)        = raise UnboundValueError
   | lookup ((k,v)::t', x) = if x = k then v else lookup (t',x)
 
@@ -40,7 +45,7 @@ fun update(t,k,v) = (k,v)::t
 fun interp (s: stm) =
   (* interpStm : stm * table -> table *)
   let fun interpStm (CompoundStm (s1,s2),t)
-        = interpStm (s2, interpStm (s1,t))
+          = interpStm (s2, interpStm (s1,t))
         | interpStm (AssignStm (k,e),t)
           = let val (n,t1) = interpExp (e,t)
             in update (t, k, n)
