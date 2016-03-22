@@ -20,7 +20,7 @@ val prog =
            OpExp(NumExp 10, Times, IdExp"a"))),
    PrintStm[IdExp "b"]))
 
-fun maxargs (CompoundStm (e1,e2)) = max (maxargs_exp e1, maxargs_exp e2)
+fun maxargs (CompoundStm (s1,s2)) = max (maxargs s1, maxargs s2)
   | maxargs (AssignStm (_,e))     = maxargs_exp e
   | maxargs (PrintStm es)         = max (length es, List.foldl max 0 (map maxargs_exp es))
 and maxargs_exp (OpExp (e1,_,e2)) = max (maxargs_exp e1, maxargs_exp e2)
@@ -29,6 +29,53 @@ and maxargs_exp (OpExp (e1,_,e2)) = max (maxargs_exp e1, maxargs_exp e2)
 and max (x,y)                     = if x < y then y else x
 
 
+type table = (id * int) list
+fun lookup (nil,_)        = NONE
+  | lookup ((k,v)::t', x) = if x = k then SOME v else lookup (t',x)
 
-fun interp (s: stm): () =
-  let fun interpStm (t, CompoundStm (e1,e2)) =
+fun update(t,k,v) = (k,v)::t
+
+exception UnboundValueError
+
+fun interp (s: stm) =
+  (* interpStm : stm * table -> table *)
+  let fun interpStm (CompoundStm (s1,s2),t)
+        = interpStm (s2, interpStm (s1,t))
+        | interpStm (AssignStm (k,e),t)
+          = let val (n,t1) = interpExp (e,t)
+            in update (t, k, n)
+            end
+        | interpStm (PrintStm es, t)
+          = let fun print1 (e,t) =
+                  let val (n, t1) = interpExp (e,t)
+                  in print (Int.toString n);
+                     print " ";
+                     t1
+                  end
+                val tx = List.foldr print1 t es in
+                print "\n"; tx
+            end
+      (* interpExp : exp * table -> int * table *)
+      and interpExp (IdExp i, t)
+          = let val g = lookup (t,i)
+            in case g of
+                   SOME v => (v,t)
+                 | NONE => raise UnboundValueError
+            end
+        | interpExp (NumExp n, t)
+          = (n,t)
+        | interpExp (OpExp (e1,bop,e2),t)
+          = let val (n1,t1) = interpExp (e1,t)
+                val (n2,t2) = interpExp (e2,t)
+            in ((interpBop bop) (n1,n2), t2)
+            end
+        | interpExp (EseqExp (s,e),t)
+          = let val t1 = interpStm (s,t)
+            in interpExp (e,t1)
+            end
+      and interpBop Plus  = (op + )
+        | interpBop Minus = (op - )
+        | interpBop Times = (op * )
+        | interpBop Div   = (op div )
+  in interpStm (s,[])
+  end
