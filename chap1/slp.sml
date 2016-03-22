@@ -30,12 +30,12 @@ and max (x,y)                     = if x < y then y else x
 
 
 type table = (id * int) list
-fun lookup (nil,_)        = NONE
-  | lookup ((k,v)::t', x) = if x = k then SOME v else lookup (t',x)
+exception UnboundValueError
+fun lookup (nil,_)        = raise UnboundValueError
+  | lookup ((k,v)::t', x) = if x = k then v else lookup (t',x)
 
 fun update(t,k,v) = (k,v)::t
 
-exception UnboundValueError
 
 fun interp (s: stm) =
   (* interpStm : stm * table -> table *)
@@ -57,11 +57,7 @@ fun interp (s: stm) =
             end
       (* interpExp : exp * table -> int * table *)
       and interpExp (IdExp i, t)
-          = let val g = lookup (t,i)
-            in case g of
-                   SOME v => (v,t)
-                 | NONE => raise UnboundValueError
-            end
+          = (lookup (t,i), t)
         | interpExp (NumExp n, t)
           = (n,t)
         | interpExp (OpExp (e1,bop,e2),t)
