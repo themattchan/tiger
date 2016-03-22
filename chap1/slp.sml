@@ -29,9 +29,9 @@ and maxargs_exp (OpExp (e1,_,e2)) = max (maxargs_exp e1, maxargs_exp e2)
 
 
 type table = (id * int) list
-exception UnboundValueError
+exception UnboundVariableError
 
-fun lookup (nil,_)        = raise UnboundValueError
+fun lookup (nil,_)        = raise UnboundVariableError
   | lookup ((k,v)::t', x) = if x = k then v else lookup (t',x)
 
 fun update(t,k,v) = (k,v)::t
