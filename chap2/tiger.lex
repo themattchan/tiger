@@ -69,7 +69,8 @@ fun parseInt (ns, p, k) =
 <INITIAL>"/*" => (YYBEGIN COMMENT; continue());
 <COMMENT>"*/" => (YYBEGIN INITIAL; continue());
 <COMMENT>.    => (continue());
-[\ \t]*       => (continue());
-\n            => (lineNum := !lineNum+1; linePos := yypos :: !linePos; continue());
+
+<INITIAL>[\ \t]*       => (continue());
+<INITIAL>\n            => (lineNum := !lineNum+1; linePos := yypos :: !linePos; continue());
 
 .     => (ErrorMsg.error yypos ("illegal character " ^ yytext); continue());
