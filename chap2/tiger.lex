@@ -29,6 +29,31 @@ do        => (Tokens.DO       (yypos, yypos+2));
 of        => (Tokens.OF       (yypos, yypos+2));
 nil       => (Tokens.NIL      (yypos, yypos+3));
 
+","       => Tokens.COMMA     (yypos, yypos+1));
+":"       => Tokens.COLON     (yypos, yypos+1));
+";"       => Tokens.SEMICOLON (yypos, yypos+1));
+"("       => Tokens.LPAREN    (yypos, yypos+1));
+")"       => Tokens.RPAREN    (yypos, yypos+1));
+"["       => Tokens.LBRACK    (yypos, yypos+1));
+"]"       => Tokens.RBRACK    (yypos, yypos+1));
+"{"       => Tokens.LBRACE    (yypos, yypos+1));
+"}"       => Tokens.RBRACE    (yypos, yypos+1));
+"."       => Tokens.DOT       (yypos, yypos+1));
+"+"       => Tokens.PLUS      (yypos, yypos+1));
+"-"       => Tokens.MINUS     (yypos, yypos+1));
+"*"       => Tokens.TIMES     (yypos, yypos+1));
+"/"       => Tokens.DIVIDE    (yypos, yypos+1));
+"="       => Tokens.EQ        (yypos, yypos+1));
+"<>"      => Tokens.NEQ       (yypos, yypos+2));
+">"       => Tokens.GT        (yypos, yypos+1));
+"<"       => Tokens.LT        (yypos, yypos+1));
+">="      => Tokens.GE        (yypos, yypos+2));
+"<="      => Tokens.LE        (yypos, yypos+2));
+"&"       => Tokens.AND       (yypos, yypos+1));
+"|"       => Tokens.OR        (yypos, yypos+1));
+":="      => Tokens.ASSIGN    (yypos, yypos+2));
+
+
 \n    => (lineNum := !lineNum+1; linePos := yypos :: !linePos; continue());
 ","   => (Tokens.COMMA(yypos,yypos+1));
 "123" => (Tokens.INT(123,yypos,yypos+3));
