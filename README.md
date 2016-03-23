@@ -14,11 +14,14 @@ this in Haskell or Coq...
 
     ```
     su
-    <make sure sml is in su path>
+    export SMLROOT=/usr/local/sml/bin/
+    export PATH=$SMLROOT:$PATH
     cd /usr/share/doc/mlton/cm2mlb
+
     sml
-    - CM.make "cm2mlb.cm";
-    - CM2MLB.export ();
+      - CM.make "cm2mlb.cm";
+      - CM2MLB.export ();
+
     ln -s <smlnj>/bin/.run-sml <smlnj>/bin/cm2mlb
     mv cm2mlb.x86-linux <smlnj>/bin/.heap
     ```
