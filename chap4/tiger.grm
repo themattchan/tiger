@@ -2,18 +2,50 @@ structure A = Absyn
 
 %%
 %term
-    EOF 
+    EOF
   | ID of string
-  | INT of int | STRING of string 
-  | COMMA | COLON | SEMICOLON | LPAREN | RPAREN | LBRACK | RBRACK 
-  | LBRACE | RBRACE | DOT 
+  | INT of int | STRING of string
+  | COMMA | COLON | SEMICOLON | LPAREN | RPAREN | LBRACK | RBRACK
+  | LBRACE | RBRACE | DOT
   | PLUS | MINUS | TIMES | DIVIDE | EQ | NEQ | LT | LE | GT | GE
   | AND | OR | ASSIGN
-  | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF 
+  | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF
   | BREAK | NIL
-  | FUNCTION | VAR | TYPE 
+  | FUNCTION | VAR | TYPE
 
 %nonterm  exp | program of A.exp
+
+
+%nonterm  exp
+        | program     of A.exp
+        | lvalue      of A.
+        | record      of A.
+        | sequence    of A.
+        | app         of A.
+        | cmpexp      of A.
+        | mathexp     of A.
+        | boolexp     of A.
+        | array       of A.
+        | assign      of A.
+        | control     of A.
+        | decs        of A.
+        | dec         of A.
+        | vardec      of A.
+        | fundec      of A.
+        | tydec       of A.
+        | tyfields    of A.
+        | tyfield1    of A.
+        | tyfieldss   of A.
+        | ty          of A.
+        | lvalue1     of A.
+        | args        of A.
+        | moreargs    of A.
+        | sequence1   of A.
+        | sequence2   of A.
+        | field1      of A.
+        | fields      of A.
+        | expseq      of A.
+
 
 %pos int
 %verbose
@@ -23,8 +55,8 @@ structure A = Absyn
 
 %name Tiger
 
-%keyword WHILE FOR TO BREAK LET IN END FUNCTION VAR TYPE ARRAY IF THEN ELSE 
-	DO OF NIL
+%keyword WHILE FOR TO BREAK LET IN END FUNCTION VAR TYPE ARRAY IF THEN ELSE
+  DO OF NIL
 
 %prefer THEN ELSE LPAREN
 
@@ -34,7 +66,107 @@ structure A = Absyn
 
 %%
 
-program	: exp				(exp)
+program : exp (exp)
 
-	
-exp: NIL		(A.NilExp)
+
+exp: lvalue      ()
+   | record      ()
+   | sequence    ()
+   | app         ()
+   | cmpexp      ()
+   | mathexp     ()
+   | boolexp     ()
+   | array       ()
+   | assign      ()
+   | control     ()
+   | NIL         (A.NilExp)
+   | INT         ()
+   | STRING      ()
+
+decs: (* nil *) ()
+    | dec decs  ()
+
+dec: vardec ()
+   | fundec ()
+   | tydec ()
+
+vardec: VAR ID ASSIGN exp ()
+      | VAR ID COLON ID ASSIGN exp ()
+
+fundec: FUNCTION ID LPAREN tyfields RPAREN exp ()
+      | FUNCTION ID LPAREN tyfields RPAREN COLON ID exp ()
+
+
+tyfields: (* nil *) ()
+        | tyfield1 tyfieldss ()
+
+tyfield1: ID COLON ID ()
+
+tyfieldss: (* nil *) ()
+         | COMMA tyfield1 tyfieldss ()
+
+tydec: TYPE ID EQ ty ()
+
+ty: ID ()
+  | LBRACE tyfields RBRACE ()
+  | ARRAY OF ID ()
+
+
+lvalue: ID lvalue1 ()
+
+lvalue1: (* nil *) ()
+       | DOT ID lvalue1 ()
+       | LBRACK exp RBRACK lvalue1 ()
+
+control: IF exp THEN exp ELSE exp          ()
+       | IF exp THEN exp                   ()
+       | WHILE exp DO exp                  ()
+       | FOR ID ASSIGN exp TO exp DO exp   ()
+       | BREAK                             ()
+       | LET decs IN expseq END            ()
+
+expseq: (* nil *) ()
+      | exp SEMICOLON expseq ()
+
+app: ID LPAREN args RPAREN ()
+
+args: (* nil *)    ()
+    | exp moreargs ()
+
+moreargs: (* nil *)          ()
+        | COMMA exp moreargs ()
+
+cmpexp: exp EQ  exp ()
+      | exp NEQ exp ()
+      | exp LT  exp ()
+      | exp GT  exp ()
+      | exp LE  exp ()
+      | exp GE  exp ()
+
+mathexp:     MINUS  exp ()
+       | exp PLUS   exp ()
+       | exp MINUS  exp ()
+       | exp TIMES  exp ()
+       | exp DIVIDE exp ()
+
+boolexp: exp AND exp ()
+       | exp OR  exp ()
+
+assign: lvalue ASSIGN exp ()
+
+sequence: LPAREN sequence1 RPAREN ()
+
+sequence1: (* nil *)     ()
+         | exp sequence2 ()
+
+sequence2: (* nil *)               ()
+         | SEMICOLON exp sequence2 ()
+
+record: ID LBRACE field1 fields RBRACE ()
+
+field1: ID EQ exp ()
+
+fields: (* nil *)           ()
+      | COMMA field1 fields ()
+
+array: ID LBRACK exp RBRACK OF exp ()
