@@ -22,6 +22,6 @@ this in Haskell or Coq...
       - CM.make "cm2mlb.cm";
       - CM2MLB.export ();
 
-    ln -s <smlnj>/bin/.run-sml <smlnj>/bin/cm2mlb
-    mv cm2mlb.x86-linux <smlnj>/bin/.heap
+    ln -s $SMLROOT/.run-sml $SMLROOT/cm2mlb
+    mv cm2mlb.x86-linux $SMLROOT/.heap
     ```
