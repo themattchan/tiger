@@ -14,7 +14,14 @@ fun parseInt (ns, p, k) =
                ;k())
 
 
+type svalue = Tokens.svalue
+type pos = int
+type ('a,'b) token = ('a,'b) Tokens.token
+type lexresult = (svalue,pos) token
+
 %%
+%header (functor TigerLexFun(structure Tokens: Tiger_TOKENS))
+
 %s COMMENT;
 
 %%
