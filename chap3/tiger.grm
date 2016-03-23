@@ -10,6 +10,7 @@
   | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
+  | UMINUS
 
 %nonterm  exp
         | program
@@ -53,6 +54,16 @@
   DO OF NIL
 
 %prefer THEN ELSE LPAREN
+
+(* LOW PRECEDENCE *)
+%nonassoc FUNCTION VAR TYPE IF THEN ELSE DO OF ASSIGN ARRAY WHILE FOR TO
+%left OR
+%left AND
+%nonassoc EQ NEQ LT LE GT GE
+%left PLUS MINUS
+%left TIMES DIVIDE
+%left UMINUS
+(* HIGH PRECEDENCE *)
 
 %value ID ("bogus")
 %value INT (1)
@@ -137,7 +148,7 @@ cmpexp: exp EQ  exp ()
       | exp LE  exp ()
       | exp GE  exp ()
 
-mathexp:     MINUS  exp ()
+mathexp:     MINUS  exp %prec UMINUS ()
        | exp PLUS   exp ()
        | exp MINUS  exp ()
        | exp TIMES  exp ()

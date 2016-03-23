@@ -70,7 +70,7 @@ type lexresult = (svalue,pos) token
 
 <INITIAL>[0-9]+                    => (parseInt (yytext, yypos, continue));
 <INITIAL>[a-zA-Z][_a-zA-Z0-9]*     => (Tokens.ID (yytext, yypos, yypos+size yytext));
-<INITIAL>["][^"]*["]               => (Tokens.STRING (yytext, yypos, yypos+size yytext));
+<INITIAL>[\"][^\"]*[\"]            => (Tokens.STRING (yytext, yypos, yypos+size yytext));
 
 
 <INITIAL>"/*" => (YYBEGIN COMMENT; continue());
