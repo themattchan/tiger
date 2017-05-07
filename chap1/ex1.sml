@@ -40,10 +40,3 @@ struct
       SOME v
 
 end;
-
-functor BalancedTree (t: KVTREE) : KVTREE =
-struct
-
-
-
-end;

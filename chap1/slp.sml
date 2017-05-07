@@ -2,23 +2,23 @@ type id = string
 
 datatype binop = Plus | Minus | Times | Div
 
-datatype stm =
-         CompoundStm of stm * stm
-       | AssignStm of id * exp
-       | PrintStm of exp list
+datatype stm
+  = CompoundStm of stm * stm
+  | AssignStm of id * exp
+  | PrintStm of exp list
 
-     and exp =
-         IdExp of id
-       | NumExp of int
-       | OpExp of exp * binop * exp
-       | EseqExp of stm * exp
+and exp
+    = IdExp of id
+    | NumExp of int
+    | OpExp of exp * binop * exp
+    | EseqExp of stm * exp
 
 val prog =
- CompoundStm(AssignStm("a",OpExp(NumExp 5, Plus, NumExp 3)),
-  CompoundStm(AssignStm("b",
-      EseqExp(PrintStm[IdExp"a",OpExp(IdExp"a", Minus,NumExp 1)],
-           OpExp(NumExp 10, Times, IdExp"a"))),
-   PrintStm[IdExp "b"]))
+    CompoundStm(AssignStm("a",OpExp(NumExp 5, Plus, NumExp 3)),
+                CompoundStm(AssignStm("b",
+                                      EseqExp(PrintStm[IdExp"a",OpExp(IdExp"a", Minus,NumExp 1)],
+                                              OpExp(NumExp 10, Times, IdExp"a"))),
+                            PrintStm[IdExp "b"]))
 
 fun maxargs (CompoundStm (s1,s2)) = max (maxargs s1, maxargs s2)
   | maxargs (AssignStm (_,e))     = maxargs_exp e
@@ -40,7 +40,7 @@ fun update(t,k,v) = (k,v)::t
 fun interp (s: stm) =
   (* interpStm : stm * table -> table *)
   let fun interpStm (CompoundStm (s1,s2),t)
-          = interpStm (s2, interpStm (s1,t))
+        = interpStm (s2, interpStm (s1,t))
         | interpStm (AssignStm (k,e),t)
           = let val (n,t1) = interpExp (e,t)
             in update (t, k, n)
